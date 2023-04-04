@@ -1,0 +1,41 @@
+version: "2.0"
+services:
+  app:
+    build:
+      args:
+        user: hhs
+        uid: 1000
+      context: ./
+      dockerfile: dockerfile
+    image: hhs_back
+    container_name: hhs_back
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - /home/manager/dev/src/hhs:/var/www
+  web:
+    container_name: nginx
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - /home/manager/dev/containers/docker_build/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /home/manager/dev/src/hhs_front:/var/www/front
+    volumes_from:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8000:8000"
+  db:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_DB: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_USER: 
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - /home/manager/dev/src/db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
